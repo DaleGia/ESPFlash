@@ -1,5 +1,4 @@
 #include "ESPFlash.h"
-#include <FS.h>
 #include <limits>
 
 void setup()
@@ -9,6 +8,7 @@ void setup()
   Serial.println("Starting!");
   Serial.println();
   SPIFFS.begin();
+  Serial.println("Formatting SPIFFS. Will take a while...");
   SPIFFS.format();
 
   unitTest<bool>("bool");
@@ -34,6 +34,8 @@ void setup()
   
   unitTest<float>("float");
   unitTest<double>("double");
+
+  Serial.println("Done!");
 }
 
 void loop()
@@ -79,7 +81,5 @@ template<typename T> void unitTest(const char* testName)
     Serial.print("std::numeric_limits<T>::max() ");
     Serial.println(std::numeric_limits<T>::max());
   }
-
-  Serial.println();
 } 
  
