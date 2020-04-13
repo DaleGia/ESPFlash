@@ -24,9 +24,7 @@
 
 template<class T>
 class ESPFlash
-{
-  private:
-    const char* fileName;    
+{  
   public:
     /* Creates the ESPFlash instance. In practice it starts SPIFFS and gets the file name. */
     ESPFlash(const char* fileName);
@@ -36,7 +34,7 @@ class ESPFlash
      */
     size_t length(void);
     
-    /* Truncates the associated ESPFlash SPIFFS file and creates the first element containung type T. */
+    /* Truncates the associated ESPFlash SPIFFS file and creates the first element containing type T. */
     /* Returns true if successful */
     bool set(const T data);
     /* Sets the element specified by the index parameter if it exists. */
@@ -44,8 +42,15 @@ class ESPFlash
     bool setElementAt(const T data, uint32_t index);
     /* Truncates the associated ESPFlash SPIFFS file and creates elements specified by Type T. */
     /* Returns true if successful */
-    bool setElements(const T* data, size_t size = 1);
+    bool setElements(const T* data, size_t size);
 
+    /* Opens the associated ESPFlash SPIFFS file and appends element containing type T. */
+    /* Returns true if successful */
+    bool append(const T data);
+    /* Opens the associated ESPFlash SPIFFS file and appends elements specified by Type T. */
+    /* Returns true if successful */
+    bool appendElements(const T* data, size_t size);
+    
     /* Gets the first element of type T stored in the associated ESPFlash SPIFFS file if it exists */
     T get(void);
     /* Gets the element of type T as specified by the index parameter if it exists. */
@@ -56,6 +61,17 @@ class ESPFlash
     /* Gets elements of Type T from the end of the file stored in the associated ESPFlash SPIFFS file if it exists */
     /* Returns the number of elements "got" */
     size_t getBackElements(T* data, size_t size);
+
+  private:
+    const char* fileName;  
+    enum WRITE_MODE
+    {
+      OVERWRITE = 0,
+      APPEND,
+    };
+    
+    bool writeElement(const T data, enum WRITE_MODE mode);
+    bool writeElements(const T* data, size_t size, enum WRITE_MODE mode);
 };
 
 template<class T> ESPFlash<T>::ESPFlash(const char* fileName)
@@ -90,14 +106,78 @@ template<class T> size_t ESPFlash<T>::length(void)
 
 template<class T> bool ESPFlash<T>::set(const T data)
 {
+  return writeElement(data, WRITE_MODE::OVERWRITE); 
+};
+
+template<class T> bool ESPFlash<T>::setElements(const T* data, size_t size)
+{
+  return writeElements(data, size, WRITE_MODE::OVERWRITE);
+};
+
+template<class T> bool ESPFlash<T>::append(const T data)
+{
+  return writeElement(data, WRITE_MODE::APPEND); 
+};
+
+template<class T> bool ESPFlash<T>::appendElements(const T* data, size_t size)
+{
+  return writeElements(data, size, WRITE_MODE::APPEND);
+};
+
+template<class T> T ESPFlash<T>::get(void)
+{
+  T value;
+  File file = SPIFFS.open(this->fileName, "r");
+  file.read((uint8_t*)&value, sizeof(T));
+  file.close();
+  return value;
+};
+
+template<class T> T ESPFlash<T>::getElementAt(uint32_t index)
+{
+  T value;
   File file;
+  value = (T)0;
+  if(index < length())
+  {
+    file = SPIFFS.open(this->fileName, "r");
+    file.seek(index*sizeof(T), SeekSet);
+    file.read((uint8_t*)&value, sizeof(T));
+    file.close();
+  }
+  return value;
+};
+
+template<class T> size_t ESPFlash<T>::getFrontElements(T* data, uint32_t size)
+{
+  File file = SPIFFS.open(this->fileName, "r");
+  file.read((uint8_t*)data, sizeof(T)*size);
+  file.close();
+  return;
+};
+
+template<class T> bool ESPFlash<T>::writeElement(const T data, WRITE_MODE mode)
+{
+    File file;
   size_t bytesWritten;
   bool success; 
   
   bytesWritten = 0;
   success = false;
-  /* Truncate and open file specified by fileName with write privileges*/
-  file = SPIFFS.open(this->fileName, "w");
+  /*open file specified by fileName with write privileges*/
+  if(WRITE_MODE::OVERWRITE == mode)
+  {
+    file = SPIFFS.open(this->fileName, "w");
+  }
+  else if(ESPFlash::APPEND == mode)
+  {
+    file = SPIFFS.open(this->fileName, "a");
+  }
+  else
+  {
+    /* error */
+    return success;
+  }
   
   if(file)
   {
@@ -121,7 +201,7 @@ template<class T> bool ESPFlash<T>::set(const T data)
   return success;
 };
 
-template<class T> bool ESPFlash<T>::setElements(const T* data, size_t size)
+template<class T> bool ESPFlash<T>::writeElements(const T* data, size_t size, enum WRITE_MODE mode)
 {
   File file;
   size_t bytesWritten;
@@ -130,8 +210,21 @@ template<class T> bool ESPFlash<T>::setElements(const T* data, size_t size)
   
   bytesWritten = 0;
   success = false;
-  /* Truncate and open file specified by fileName with write privileges*/
-  file = SPIFFS.open(this->fileName, "w");
+
+  /*open file specified by fileName with write privileges*/
+  if(WRITE_MODE::OVERWRITE == mode)
+  {
+    file = SPIFFS.open(this->fileName, "w");
+  }
+  else if(WRITE_MODE::APPEND == mode)
+  {
+    file = SPIFFS.open(this->fileName, "a");
+  }
+  else
+  {
+    /* error */
+    return success;
+  }
 
   if(file)
   {
@@ -155,37 +248,5 @@ template<class T> bool ESPFlash<T>::setElements(const T* data, size_t size)
   }
   
   return success;
-}
-
-template<class T> T ESPFlash<T>::get(void)
-{
-  T value;
-  File file = SPIFFS.open(this->fileName, "r");
-  file.read((uint8_t*)&value, sizeof(T));
-  file.close();
-  return value;
-}
-
-template<class T> T ESPFlash<T>::getElementAt(uint32_t index)
-{
-  T value;
-  File file;
-  value = (T)0;
-  if(index < length())
-  {
-    file = SPIFFS.open(this->fileName, "r");
-    file.seek(index*sizeof(T), SeekSet);
-    file.read((uint8_t*)&value, sizeof(T));
-    file.close();
-  }
-  return value;
-}
-
-template<class T> size_t ESPFlash<T>::getFrontElements(T* data, uint32_t size)
-{
-  File file = SPIFFS.open(this->fileName, "r");
-  file.read((uint8_t*)data, sizeof(T)*size);
-  file.close();
-  return;
-}
+};
 #endif /*ESPFLASHDATA_H_*/
