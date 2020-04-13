@@ -57,10 +57,10 @@ class ESPFlash
     T getElementAt(uint32_t index);
     /* Gets elements of Type T from the start of the file stored in the associated ESPFlash SPIFFS file if it exists */
     /* Returns the number of elements "got" */
-    size_t getFrontElements (T* data, size_t size);
+    bool getFrontElements (T* data, size_t size);
     /* Gets elements of Type T from the end of the file stored in the associated ESPFlash SPIFFS file if it exists */
     /* Returns the number of elements "got" */
-    size_t getBackElements(T* data, size_t size);
+    bool getBackElements(T* data, size_t size);
 
   private:
     const char* fileName;  
@@ -136,24 +136,91 @@ template<class T> T ESPFlash<T>::get(void)
 template<class T> T ESPFlash<T>::getElementAt(uint32_t index)
 {
   T value;
+  size_t bytesRead;
   File file;
-  value = (T)0;
+  
+  bytesRead = 0;
+  value = (T)0; 
   if(index < length())
   {
     file = SPIFFS.open(this->fileName, "r");
-    file.seek(index*sizeof(T), SeekSet);
-    file.read((uint8_t*)&value, sizeof(T));
-    file.close();
+    if(file)
+    {
+      file.seek(index*sizeof(T), SeekSet);
+      bytesRead = file.read((uint8_t*)&value, sizeof(T));
+      file.close();
+      /* Check if successful by the number of bytes read */
+      if(bytesRead != sizeof(T))
+      {
+        /* An error has occured */
+        value = (T)0; 
+      }
+    }
   }
+  
   return value;
 };
 
-template<class T> size_t ESPFlash<T>::getFrontElements(T* data, uint32_t size)
+template<class T> bool ESPFlash<T>::getFrontElements(T* data, uint32_t size)
 {
-  File file = SPIFFS.open(this->fileName, "r");
-  file.read((uint8_t*)data, sizeof(T)*size);
-  file.close();
-  return;
+  File file;
+  size_t numberOfBytes;
+  size_t bytesRead;
+  bool success;
+  
+  success = false;
+  numberOfBytes = sizeof(T)*size;;
+  bytesRead = 0;
+  /* Open the file specified by the filename with read privileges*/
+  file = SPIFFS.open(this->fileName, "r");
+  if(size < length())
+  {
+    if(file)
+    {
+      bytesRead = file.read((uint8_t*)data, numberOfBytes);
+      file.close();
+  
+      /* Check if successful by the number of bytes read */
+      if(bytesRead == numberOfBytes)
+      {
+        success = true;
+      }
+    }
+  }
+  return success;
+};
+
+template<class T> bool ESPFlash<T>::getBackElements(T* data, uint32_t size)
+{
+  File file;
+  size_t numberOfBytes;
+  size_t firstElementIndex;
+  size_t bytesRead;
+  bool success;
+  
+  success = false;
+  bytesRead = 0;
+  numberOfBytes = sizeof(T)*size;
+  firstElementIndex = 0;
+  /* Open the file specified by the filename with read privileges*/
+  file = SPIFFS.open(this->fileName, "r");
+  if(size < length())
+  {
+    firstElementIndex = file.size() - numberOfBytes;
+    if(file)
+    {
+      file.seek(firstElementIndex, SeekSet);
+      bytesRead = file.read((uint8_t*)data, numberOfBytes);
+      file.close();
+  
+      /* Check if successful by the number of bytes read */
+      if(bytesRead == numberOfBytes)
+      {
+        success = true;
+      }
+    }
+  }
+  return success;
 };
 
 template<class T> bool ESPFlash<T>::writeElement(const T data, WRITE_MODE mode)
