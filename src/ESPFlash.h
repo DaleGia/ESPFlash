@@ -2,7 +2,8 @@
   ESPFlash.h
 
   Copyright (c) 2020 Dale Giancono. All rights reserved..
-  This file defines the ESPFlash class. PUT DESCRIPTION HERE.
+  This file defines the ESPFlash class. It provides an easy way
+  to store generic vectorised data in SPIFFs.
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -17,6 +18,7 @@
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+
 #ifndef ESPFLASH_H_
 #define ESPFLASH_H_
 
@@ -126,7 +128,6 @@ template<class T> size_t ESPFlash<T>::length(void)
       numberOfElements = sizeInBytes/sizeof(T);
     }
     file.close();
-    Serial.printf("\nESPFlash<T>::length(void): %d\n", numberOfElements);
   }
   return numberOfElements;
 }
@@ -310,7 +311,6 @@ template<class T> bool ESPFlash<T>::writeElement(const T data, WRITE_MODE mode)
     {
       /* Write type T to SPIFFS */
       bytesWritten = file.write((uint8_t*)&data, sizeof(T));
-      Serial.println(data);
       /* Check if successful by the number of bytes written */
       /* If not successful, delete the file that was possibly 
        *  created to make sure data does not end up being
@@ -325,8 +325,6 @@ template<class T> bool ESPFlash<T>::writeElement(const T data, WRITE_MODE mode)
       }
     }
     file.close();
-    
-    Serial.printf("\nESPFlash<T>::writeElement(const T data, WRITE_MODE mode): %u\n", success);
   }
   return success;
 };
@@ -363,8 +361,6 @@ template<class T> bool ESPFlash<T>::writeElements(const T* data, size_t size, en
       elementsSizeInBytes = sizeof(T)*size;
       /* Write type T to SPIFFS */
       bytesWritten = file.write((T*)data, elementsSizeInBytes);
-      Serial.write((T*)data, bytesWritten);
-      Serial.println(); 
       /* Check if successful by the number of bytes written */
       /* If not successful, delete the file that was possibly 
        *  created to make sure data does not end up being
@@ -379,7 +375,6 @@ template<class T> bool ESPFlash<T>::writeElements(const T* data, size_t size, en
       }
     }
     file.close();
-    Serial.printf("\nESPFlash<T>::writeElements(const T* data, size_t size, enum WRITE_MODE mode): %u\n", success);
   }
   return success;
 };
@@ -419,8 +414,6 @@ template<class T> bool ESPFlash<T>::writeElements_P(const T* data, size_t size, 
     {
       /* Write type T to SPIFFS */
       bytesWritten = file.write((T*)buffer, elementsSizeInBytes);
-      Serial.write((T*)buffer, bytesWritten);
-      Serial.println();
       /* Check if successful by the number of bytes written */
       /* If not successful, delete the file that was possibly 
        *  created to make sure data does not end up being
@@ -435,7 +428,6 @@ template<class T> bool ESPFlash<T>::writeElements_P(const T* data, size_t size, 
       }
     }
     file.close();
-    Serial.printf("\nESPFlash<T>::writeElements_P(const T* data, size_t size, enum WRITE_MODE mode): %u\n", success);
   }
   return success;
 };
@@ -452,11 +444,6 @@ template<class T> void ESPFlash<T>::setFileName(const char* fileName)
     char* pch = strrchr(fileName, '.');
     strcpy(this->fileName+27, pch);
   }
-  Serial.println("ESPFlash(const char* fileName)");
-  Serial.printf("fileName: %s\n", fileName);
-  Serial.printf("this->fileName: %s\n", this->fileName);
-  Serial.println();
-
   isInitialised = true;
   return;
 }
@@ -466,4 +453,4 @@ template<class T> const char* ESPFlash<T>::getFileName(void)
   return this->fileName;
 }
 
-#endif /*ESPFLASHDATA_H_*/
+#endif /*ESPFLASH_H_*/
