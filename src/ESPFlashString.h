@@ -59,12 +59,12 @@ ESPFlashString::ESPFlashString(const char* fileName, const char* defaultString)
 
 void ESPFlashString::set(String string)
 {
-  espFlash.setElements(string.c_str(), string.length());
+  espFlash.setElements(string.c_str(), string.length()+1);
 }
 
 void ESPFlashString::set(const char* string)
 {
-  espFlash.setElements(string, strlen(string));
+  espFlash.setElements(string, strlen(string)+1);
 }
 
 void ESPFlashString::reset(void)
