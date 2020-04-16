@@ -1,5 +1,5 @@
 /*
-  millisArray.ino
+  ssidStorage.ino
 
   Copyright (c) 2020 Dale Giancono. All rights reserved..
   This file is a an application to demonstrte the abilities of the 
