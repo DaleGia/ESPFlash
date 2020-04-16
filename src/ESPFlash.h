@@ -26,6 +26,7 @@ template<class T>
 class ESPFlash
 {  
   public:
+    ESPFlash();
     /* Creates the ESPFlash instance. In practice it starts SPIFFS and gets the file name. */
     ESPFlash(const char* fileName);
     /* Gets the number of elements of type T stored in the ESPFlash instance. 
@@ -72,9 +73,11 @@ class ESPFlash
     /* Deletes the associated ESPFlash SPIFFS file. */
     /* Returns true if successful */
     void clear(void);
+    void setFileName(const char*);
     const char* getFileName(void);
 
   private:
+    bool isInitialised = false;
     char fileName[32];  
     enum WRITE_MODE
     {
@@ -88,18 +91,15 @@ class ESPFlash
 
 };
 
+template<class T> ESPFlash<T>::ESPFlash()
+{
+  SPIFFS.begin();      
+  return;
+};
+
 template<class T> ESPFlash<T>::ESPFlash(const char* fileName)
 {
-  if(strlen(fileName) < 31)
-  {
-    strcpy(this->fileName, fileName);
-  }
-  else
-  {
-    strncpy(this->fileName, fileName, 20);
-    char* pch = strrchr(fileName, '.');
-    strcpy(this->fileName, pch);
-  }
+  setFileName(fileName);
   SPIFFS.begin();      
   return;
 };
@@ -110,20 +110,24 @@ template<class T> size_t ESPFlash<T>::length(void)
   size_t sizeInBytes;
   size_t numberOfElements;
 
-  sizeInBytes = 0;
   numberOfElements = 0;
-  /* Open the file specified by the filename with read privileges*/
-  file = SPIFFS.open(this->fileName, "r");
-  
-  if(file)
+  if(isInitialised == true)
   {
-    /* Get the size of the file in bytes */
-    sizeInBytes = file.size();
+    sizeInBytes = 0;
+    /* Open the file specified by the filename with read privileges*/
+    file = SPIFFS.open(this->fileName, "r");
+    
+    if(file)
+    {
+      /* Get the size of the file in bytes */
+      sizeInBytes = file.size();
+      
+      /* Calculate number of elements by dividing by size of type T */ 
+      numberOfElements = sizeInBytes/sizeof(T);
+    }
     file.close();
-    /* Calculate number of elements by dividing by size of type T */ 
-    numberOfElements = sizeInBytes/sizeof(T);
+    Serial.printf("\nESPFlash<T>::length(void): %d\n", numberOfElements);
   }
-  
   return numberOfElements;
 }
 
@@ -160,9 +164,12 @@ template<class T> bool ESPFlash<T>::appendElements_P(const T* data, size_t size)
 template<class T> T ESPFlash<T>::get(void)
 {
   T value;
-  File file = SPIFFS.open(this->fileName, "r");
-  file.read((T*)&value, sizeof(T));
-  file.close();
+  if(isInitialised == true)
+  {
+    File file = SPIFFS.open(this->fileName, "r");
+    file.read((uint8_t*)&value, sizeof(T));
+    file.close();
+  }
   return value;
 };
 
@@ -172,25 +179,27 @@ template<class T> T ESPFlash<T>::getElementAt(uint32_t index)
   size_t bytesRead;
   File file;
   
-  bytesRead = 0;
-  value = (T)0; 
-  if(index < length())
-  {
-    file = SPIFFS.open(this->fileName, "r");
-    if(file)
+  if(isInitialised == true)
+  {  
+    bytesRead = 0;
+    value = (T)0; 
+    if(index < length())
     {
-      file.seek(index*sizeof(T), SeekSet);
-      bytesRead = file.read((T*)&value, sizeof(T));
-      file.close();
-      /* Check if successful by the number of bytes read */
-      if(bytesRead != sizeof(T))
+      file = SPIFFS.open(this->fileName, "r");
+      if(file)
       {
-        /* An error has occured */
-        value = (T)0; 
+        file.seek(index*sizeof(T), SeekSet);
+        bytesRead = file.read((uint8_t*)&value, sizeof(T));
+        /* Check if successful by the number of bytes read */
+        if(bytesRead != sizeof(T))
+        {
+          /* An error has occured */
+          value = (T)0; 
+        }
       }
+      file.close();
     }
-  }
-  
+  }  
   return value;
 };
 
@@ -202,23 +211,26 @@ template<class T> bool ESPFlash<T>::getFrontElements(T* data, uint32_t size)
   bool success;
   
   success = false;
-  numberOfBytes = sizeof(T)*size;;
-  bytesRead = 0;
-  /* Open the file specified by the filename with read privileges*/
-  file = SPIFFS.open(this->fileName, "r");
-  if(size < length())
+  if(isInitialised == true)
   {
-    if(file)
+    numberOfBytes = sizeof(T)*size;;
+    bytesRead = 0;
+    /* Open the file specified by the filename with read privileges*/
+    file = SPIFFS.open(this->fileName, "r");
+    if(size <= length())
     {
-      bytesRead = file.read((T*)data, numberOfBytes);
-      file.close();
-  
-      /* Check if successful by the number of bytes read */
-      if(bytesRead == numberOfBytes)
+      if(file)
       {
-        success = true;
+        bytesRead = file.read((uint8_t*)data, numberOfBytes);
+    
+        /* Check if successful by the number of bytes read */
+        if(bytesRead == numberOfBytes)
+        {
+          success = true;
+        }
       }
     }
+    file.close();
   }
   return success;
 };
@@ -232,33 +244,40 @@ template<class T> bool ESPFlash<T>::getBackElements(T* data, uint32_t size)
   bool success;
   
   success = false;
-  bytesRead = 0;
-  numberOfBytes = sizeof(T)*size;
-  firstElementIndex = 0;
-  /* Open the file specified by the filename with read privileges*/
-  file = SPIFFS.open(this->fileName, "r");
-  if(size < length())
+  if(isInitialised == true)
   {
-    firstElementIndex = file.size() - numberOfBytes;
-    if(file)
+    bytesRead = 0;
+    numberOfBytes = sizeof(T)*size;
+    firstElementIndex = 0;
+    /* Open the file specified by the filename with read privileges*/
+    file = SPIFFS.open(this->fileName, "r");
+    if(size < length())
     {
-      file.seek(firstElementIndex, SeekSet);
-      bytesRead = file.read((T*)data, numberOfBytes);
-      file.close();
-  
-      /* Check if successful by the number of bytes read */
-      if(bytesRead == numberOfBytes)
+      firstElementIndex = file.size() - numberOfBytes;
+      if(file)
       {
-        success = true;
+        file.seek(firstElementIndex, SeekSet);
+        bytesRead = file.read((uint8_t*)data, numberOfBytes);
+        file.close();
+    
+        /* Check if successful by the number of bytes read */
+        if(bytesRead == numberOfBytes)
+        {
+          success = true;
+        }
       }
     }
+    file.close();
   }
   return success;
 };
 
 template<class T> void ESPFlash<T>::clear(void)
-{
-  SPIFFS.remove(this->fileName);
+{  
+  if(isInitialised == true)
+  {
+    SPIFFS.remove(this->fileName);
+  }
   return;
 };
 
@@ -267,44 +286,48 @@ template<class T> bool ESPFlash<T>::writeElement(const T data, WRITE_MODE mode)
     File file;
   size_t bytesWritten;
   bool success; 
-  
-  bytesWritten = 0;
   success = false;
-  /*open file specified by fileName with write privileges*/
-  if(WRITE_MODE::OVERWRITE == mode)
+
+  if(isInitialised == true)
   {
-    file = SPIFFS.open(this->fileName, "w");
-  }
-  else if(ESPFlash::APPEND == mode)
-  {
-    file = SPIFFS.open(this->fileName, "a");
-  }
-  else
-  {
-    /* error */
-    return success;
-  }
-  
-  if(file)
-  {
-    /* Write type T to SPIFFS */
-    bytesWritten = file.write((T*)&data, sizeof(T));
-    Serial.println(data);
-    file.close();
-    /* Check if successful by the number of bytes written */
-    /* If not successful, delete the file that was possibly 
-     *  created to make sure data does not end up being
-     *  corrupted */
-    if(bytesWritten == sizeof(T))
+    bytesWritten = 0;
+    /*open file specified by fileName with write privileges*/
+    if(WRITE_MODE::OVERWRITE == mode)
     {
-      success = true;
+      file = SPIFFS.open(this->fileName, "w");
+    }
+    else if(ESPFlash::APPEND == mode)
+    {
+      file = SPIFFS.open(this->fileName, "a");
     }
     else
     {
-      SPIFFS.remove(this->fileName);
+      /* error */
+      return success;
     }
+    
+    if(file)
+    {
+      /* Write type T to SPIFFS */
+      bytesWritten = file.write((uint8_t*)&data, sizeof(T));
+      Serial.println(data);
+      /* Check if successful by the number of bytes written */
+      /* If not successful, delete the file that was possibly 
+       *  created to make sure data does not end up being
+       *  corrupted */
+      if(bytesWritten == sizeof(T))
+      {
+        success = true;
+      }
+      else
+      {
+        SPIFFS.remove(this->fileName);
+      }
+    }
+    file.close();
+    
+    Serial.printf("\nESPFlash<T>::writeElement(const T data, WRITE_MODE mode): %u\n", success);
   }
-  
   return success;
 };
 
@@ -314,48 +337,50 @@ template<class T> bool ESPFlash<T>::writeElements(const T* data, size_t size, en
   size_t bytesWritten;
   size_t elementsSizeInBytes;
   bool success; 
-  
-  bytesWritten = 0;
   success = false;
 
-  /*open file specified by fileName with write privileges*/
-  if(WRITE_MODE::OVERWRITE == mode)
+  if(isInitialised == true)
   {
-    file = SPIFFS.open(this->fileName, "w");
-  }
-  else if(WRITE_MODE::APPEND == mode)
-  {
-    file = SPIFFS.open(this->fileName, "a");
-  }
-  else
-  {
-    /* error */
-    return success;
-  }
-
-  if(file)
-  {
-    elementsSizeInBytes = sizeof(T)*size;
-    /* Write type T to SPIFFS */
-    bytesWritten = file.write((T*)data, elementsSizeInBytes);
-    Serial.println(data);
-
-    file.close();
-
-    /* Check if successful by the number of bytes written */
-    /* If not successful, delete the file that was possibly 
-     *  created to make sure data does not end up being
-     *  corrupted */
-    if(bytesWritten == elementsSizeInBytes)
+    bytesWritten = 0;
+  
+    /*open file specified by fileName with write privileges*/
+    if(WRITE_MODE::OVERWRITE == mode)
     {
-      success = true;
+      file = SPIFFS.open(this->fileName, "w");
+    }
+    else if(WRITE_MODE::APPEND == mode)
+    {
+      file = SPIFFS.open(this->fileName, "a");
     }
     else
     {
-      SPIFFS.remove(this->fileName);
+      /* error */
+      return success;
     }
-  }
   
+    if(file)
+    {
+      elementsSizeInBytes = sizeof(T)*size;
+      /* Write type T to SPIFFS */
+      bytesWritten = file.write((T*)data, elementsSizeInBytes);
+      Serial.write((T*)data, bytesWritten);
+      Serial.println(); 
+      /* Check if successful by the number of bytes written */
+      /* If not successful, delete the file that was possibly 
+       *  created to make sure data does not end up being
+       *  corrupted */
+      if(bytesWritten == elementsSizeInBytes)
+      {
+        success = true;
+      }
+      else
+      {
+        SPIFFS.remove(this->fileName);
+      }
+    }
+    file.close();
+    Serial.printf("\nESPFlash<T>::writeElements(const T* data, size_t size, enum WRITE_MODE mode): %u\n", success);
+  }
   return success;
 };
 
@@ -365,55 +390,78 @@ template<class T> bool ESPFlash<T>::writeElements_P(const T* data, size_t size, 
   size_t bytesWritten;
   size_t elementsSizeInBytes;
   bool success; 
-  elementsSizeInBytes = sizeof(T)*size;
-  T buffer[size];
-
-  bytesWritten = 0;
   success = false;
-  memcpy_P(buffer, data, elementsSizeInBytes);
 
-
-  /*open file specified by fileName with write privileges*/
-  if(WRITE_MODE::OVERWRITE == mode)
+  if(isInitialised == true)
   {
-    file = SPIFFS.open(this->fileName, "w");
-  }
-  else if(WRITE_MODE::APPEND == mode)
-  {
-    file = SPIFFS.open(this->fileName, "a");
-  }
-  else
-  {
-    /* error */
-    return success;
-  }
-
-  if(file)
-  {
-    /* Write type T to SPIFFS */
-    bytesWritten = file.write((T*)buffer, elementsSizeInBytes);
-    Serial.println(buffer);
-
-    file.close();
-
-    /* Check if successful by the number of bytes written */
-    /* If not successful, delete the file that was possibly 
-     *  created to make sure data does not end up being
-     *  corrupted */
-    if(bytesWritten == elementsSizeInBytes)
+    elementsSizeInBytes = sizeof(T)*size;
+    T buffer[size];
+    bytesWritten = 0;
+    memcpy_P(buffer, data, elementsSizeInBytes);
+  
+  
+    /*open file specified by fileName with write privileges*/
+    if(WRITE_MODE::OVERWRITE == mode)
     {
-      success = true;
+      file = SPIFFS.open(this->fileName, "w");
+    }
+    else if(WRITE_MODE::APPEND == mode)
+    {
+      file = SPIFFS.open(this->fileName, "a");
     }
     else
     {
-      SPIFFS.remove(this->fileName);
+      /* error */
+      return success;
     }
-  }
   
+    if(file)
+    {
+      /* Write type T to SPIFFS */
+      bytesWritten = file.write((T*)buffer, elementsSizeInBytes);
+      Serial.write((T*)buffer, bytesWritten);
+      Serial.println();
+      /* Check if successful by the number of bytes written */
+      /* If not successful, delete the file that was possibly 
+       *  created to make sure data does not end up being
+       *  corrupted */
+      if(bytesWritten == elementsSizeInBytes)
+      {
+        success = true;
+      }
+      else
+      {
+        SPIFFS.remove(this->fileName);
+      }
+    }
+    file.close();
+    Serial.printf("\nESPFlash<T>::writeElements_P(const T* data, size_t size, enum WRITE_MODE mode): %u\n", success);
+  }
   return success;
 };
 
-template<class T> const char* ESPFlash<T>::getFileName()
+template<class T> void ESPFlash<T>::setFileName(const char* fileName)
+{
+  if(strlen(fileName) < 31)
+  {
+    strcpy(this->fileName, fileName);
+  }
+  else
+  {
+    strncpy(this->fileName, fileName, 27);
+    char* pch = strrchr(fileName, '.');
+    strcpy(this->fileName+27, pch);
+  }
+  Serial.println("ESPFlash(const char* fileName)");
+  Serial.printf("fileName: %s\n", fileName);
+  Serial.printf("this->fileName: %s\n", this->fileName);
+  Serial.println();
+
+  isInitialised = true;
+  return;
+}
+
+template<class T> const char* ESPFlash<T>::getFileName(void)
 {
   return this->fileName;
 }
