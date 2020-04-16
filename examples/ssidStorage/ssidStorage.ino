@@ -31,13 +31,13 @@
 
 static const char _SSIDEDIT[] = "<html><body><form action=\"/ssidedit\">New SSID: <input type=\"text\" value=\"\" name=\"SSID\"><input type=\"submit\" name=\"submit\"></form></html></body>";
 
-/*ESPFlash instance used for storing ssid. */
-ESPFlashString ssid(SSID_FILEPATH, DEFAULT_SSID);
 /* Create webserver instance for serving the StringTemplate example. */
 AsyncWebServer server(80);
 
 void setup() 
 {  
+  ESPFlashString ssid(SSID_FILEPATH, DEFAULT_SSID);
+  Serial.begin(115200);
   /* Configure access point with static IP address */
   WiFi.mode(WIFI_AP);
   WiFi.softAPConfig(
@@ -56,6 +56,7 @@ void setup()
     AsyncWebParameter* p = request->getParam("SSID");
     if(p->value() != "")
     {
+      ESPFlashString ssid(SSID_FILEPATH);
       ssid.set(p->value());
       WiFi.softAPdisconnect(true);
       WiFi.softAP(ssid.get());  
