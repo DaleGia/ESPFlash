@@ -1,5 +1,5 @@
 # ESPFlash
-ESPFlash is an abstraction layer that simplifies the storing of vectorised data in the filesystem on the ESP8266 and ESP32.
+An abstraction layer that simplifies the storing of vectorised data in the filesystem on the ESP8266 and ESP32.
 
 ESPFlash is a lightweight library that was created to make SPIFFs usage simple and easy to understand on the ESP8266 and ESP32. 
 
