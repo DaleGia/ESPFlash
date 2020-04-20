@@ -20,7 +20,7 @@ ESPFlash is a lightweight library that was created to make SPIFFs usage simple a
   - Clears elements.
   
 ## One Thing to Keep In Mind
-SPIFFs is not particularly fast. It is not designed to be used in a manner that requires a high-throughput data. ESPFlash does not significantly increase the performance issues of SPIFFs, but consider with SPIFFs usage is suitable for your application. 
+SPIFFs is not particularly fast. It is not designed to be used in a manner that requires high-throughput data. ESPFlash does not significantly increase the performance issues of SPIFFs, but consider if SPIFFs usage is suitable for your application. 
   
 ## Installation
 Download this file as a zip, and extract the resulting folder into your Arduino Libraries folder. See [Installing Additional Arduino Libraries](https://www.arduino.cc/en/Guide/Libraries).
