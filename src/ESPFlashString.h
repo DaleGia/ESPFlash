@@ -2,7 +2,8 @@
 ESPFlashString.h
 
 Copyright (c) 2020 Dale Giancono. All rights reserved..
-This file defines the ESPFlashString class. 
+This file defines the ESPFlashString class. It provides a user friendly
+way to store strings in SPIFFs.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
