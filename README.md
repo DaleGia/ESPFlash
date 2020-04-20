@@ -53,12 +53,12 @@ int testGet[10];
 espFlashInteger.getBackElements(testGet, sizeof(testGet));
 ```
 
-- Simple ESPFlashCounter example - Create ESPFlashCounter instance with file name of "exampleCounter". Increment the counter. Decrement the counter. 
+- Simple ESPFlashCounter example - Create ESPFlashCounter instance with file name of "exampleCounter". Increment the counter. Get the Counter
 
 ```c++
   ESPFlashCounter exampleCounter("/exampleCounter");
   exampleCounter.increment();
-  exampleCounter.decrement();
+  int testGet = exampleCounter.get();
 ```
 
 - Simple ESPFlashString example - Create ESPFlashString instance with file name of "exampleString". Set a string. Get the string.
