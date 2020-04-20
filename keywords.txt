@@ -1,0 +1,29 @@
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+ESPFlash        KEYWORD1
+ESPFlashCounter	KEYWORD1
+ESPFlashString	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+set	        KEYWORD2
+get	        KEYWORD2
+reset	        KEYWORD2
+
+decrement	        KEYWORD2
+increment	        KEYWORD2
+
+setElementAt	    KEYWORD2
+setElements	      KEYWORD2
+setElements_P	    KEYWORD2
+append	          KEYWORD2
+appendElements	  KEYWORD2
+appendElements_P	KEYWORD2
+getElementAt	    KEYWORD2
+getFrontElements  KEYWORD2
+getBackElements   KEYWORD2
+clear 	          KEYWORD2
+setFileName 	    KEYWORD2
+getFileName 	    KEYWORD2
