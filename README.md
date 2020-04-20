@@ -24,7 +24,7 @@ Download this file as a zip, and extract the resulting folder into your Arduino 
 
 ## Examples
 ### ESPFlash
-- Simple ESPFlash integer example - Create ESPFlash instance with file name of "exampleInteger". Set a single elements value, and Get it back.
+- Simple ESPFlash integer example - Create ESPFlash instance with file name of "exampleInteger". Set a single elements value, and get it back.
 ```c++
 ESPFlash<int> espFlashInteger("/exampleInteger");
 espFlashInteger.set(10);
@@ -53,18 +53,21 @@ int testGet[10];
 espFlashInteger.getBackElements(testGet, sizeof(testGet));
 ```
 
-- Simple ESPFlashCounter example - Create ESPFlash instance with file name of "exampleInteger". Append 50 randomly generated elements. Get the last 10 elements back.
+- Simple ESPFlashCounter example - Create ESPFlashCounter instance with file name of "exampleCounter". Increment the counter. Decrement the counter. 
 
 ```c++
-ESPFlash<int> espFlashInteger("/exampleArray");
-for(int ii = 0; ii < 50; ii++)
-{
-  espFlashInteger.append(random(100));
-}
-int testGet[10];
-espFlashInteger.getBackElements(testGet, sizeof(testGet));
+  ESPFlashCounter exampleCounter("/exampleCounter");
+  exampleCounter.increment();
+  exampleCounter.decrement();
 ```
 
+- Simple ESPFlashString example - Create ESPFlashString instance with file name of "exampleString". Set a string. Get the string.
+
+```c++
+  ESPFlashCounter exampleString("/exampleString");
+  exampleString.set("Hello!");
+  String string = exampleString.get();
+```
 
 ## Further Examples  
 [millisArray.ino](examples/millisArray/millisArray.ino)
