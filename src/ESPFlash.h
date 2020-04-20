@@ -2,7 +2,9 @@
   ESPFlash.h
 
   Copyright (c) 2020 Dale Giancono. All rights reserved..
-  This file defines the ESPFlash class. PUT DESCRIPTION HERE.
+  This file defines the ESPFlash class. It is an abstraction layer that 
+  simplifies the storing of vectorised data in the filesystem on the 
+  ESP8266 and ESP32. 
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
