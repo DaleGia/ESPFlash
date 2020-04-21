@@ -8,7 +8,7 @@ ESPFlash is a lightweight library that was created to make SPIFFs usage simple a
 - Implementation of simple SPIFFs based integer counter with ESPFlashCounter.
 - Implementation of simple SPIFFs based string storer using ESPFlashString.
 
-## Why Would I Want This
+## Why Would I Want This?
 - ESPFlash enables the storage of generic data in a persistant matter. This is data that will exist through multiple power cycles or software resets.
 - ESPFlash takes care of a lot of the nastiness that exists when using SPIFFs using the concept of vectorised data. This includes the following functionailty:
   - Automatically starts SPIFFs if it has not already been started.
