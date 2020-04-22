@@ -1,17 +1,17 @@
 # ESPFlash
 An abstraction layer that simplifies the storing of vectorised data in the filesystem on the ESP8266 and ESP32.
 
-ESPFlash is a lightweight library that was created to make SPIFFs usage simple and easy to understand on the ESP8266 and ESP32. 
+ESPFlash is a lightweight library that was created to make SPIFFS usage simple and easy to understand on the ESP8266 and ESP32. 
 
 ## Features
-- Simple template based interface to store and retreive generic vectorised data in flash memory using SPIFFs with ESPFlash.
-- Implementation of simple SPIFFs based integer counter with ESPFlashCounter.
-- Implementation of simple SPIFFs based string storer using ESPFlashString.
+- Simple template based interface to store and retreive generic vectorised data in flash memory using SPIFFS with ESPFlash.
+- Implementation of simple SPIFFS based integer counter with ESPFlashCounter.
+- Implementation of simple SPIFFS based string storer using ESPFlashString.
 
 ## Why Would I Want This?
 - ESPFlash enables the storage of generic data in a persistant matter. This is data that will exist through multiple power cycles or software resets.
-- ESPFlash takes care of a lot of the nastiness that exists when using SPIFFs using the concept of vectorised data. This includes the following functionailty:
-  - Automatically starts SPIFFs if it has not already been started.
+- ESPFlash takes care of a lot of the nastiness that exists when using SPIFFS using the concept of vectorised data. This includes the following functionailty:
+  - Automatically starts SPIFFS if it has not already been started.
   - Automatically truncates filenames that are over 32 characters in length.
   - Calculates the number of generic "elements" stored in a file.
   - Overwrites elements.
@@ -20,7 +20,7 @@ ESPFlash is a lightweight library that was created to make SPIFFs usage simple a
   - Clears elements.
   
 ## One Thing to Keep In Mind
-SPIFFs is not particularly fast. It is not designed to be used in a manner that requires high-throughput data input/output. ESPFlash does not significantly increase the performance issues of SPIFFs, but you should consider if SPIFFs usage is suitable for your application. 
+SPIFFS is not particularly fast. It is not designed to be used in a manner that requires high-throughput data input/output. ESPFlash does not significantly increase the performance issues of SPIFFS, but you should consider if SPIFFS usage is suitable for your application. 
   
 ## Installation
 Download this file as a zip, and extract the resulting folder into your Arduino Libraries folder. See [Installing Additional Arduino Libraries](https://www.arduino.cc/en/Guide/Libraries).
