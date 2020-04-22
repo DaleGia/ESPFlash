@@ -4,7 +4,7 @@ An abstraction layer that simplifies the storing of vectorised data in the files
 ESPFlash is a lightweight library that was created to make SPIFFS usage simple and easy to understand on the ESP8266 and ESP32. 
 
 ## Features
-- Simple template based interface to store and retreive generic vectorised data in flash memory using SPIFFS with ESPFlash.
+- Simple template based interface to store and retrieve generic vectorised data in flash memory using SPIFFS with ESPFlash.
 - Implementation of simple SPIFFS based integer counter with ESPFlashCounter.
 - Implementation of simple SPIFFS based string storer using ESPFlashString.
 
