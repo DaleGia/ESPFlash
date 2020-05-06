@@ -26,7 +26,7 @@ SPIFFS is not particularly fast. It is not designed to be used in a manner that 
 Download this file as a zip, and extract the resulting folder into your Arduino Libraries folder. See [Installing Additional Arduino Libraries](https://www.arduino.cc/en/Guide/Libraries).
 
 ## Examples
-### ESPFlash
+The blog post [ESPFlash: An Arduino Library for Storing Data in the ESP Filesystem](https://dalegi.com/2020/04/22/espflash-an-arduino-library-for-storing-data-in-the-esp-filesystem/) contains some useful comparisons between ESPFlash usage and SPIFFS usage. In addition, here are some basic ESPFlash example:
 - Simple ESPFlash integer example - Create ESPFlash instance with file name of "exampleInteger". Set a single elements value, and get it back.
 ```c++
 ESPFlash<int> espFlashInteger("/exampleInteger");
