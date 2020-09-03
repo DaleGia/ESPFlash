@@ -23,7 +23,7 @@ ESPFlash is a lightweight library that was created to make SPIFFS usage simple a
 SPIFFS is not particularly fast. It is not designed to be used in a manner that requires high-throughput data input/output. ESPFlash does not significantly increase the performance issues of SPIFFS, but you should consider if SPIFFS usage is suitable for your application. 
   
 ## Installation
-Download this file as a zip, and extract the resulting folder into your Arduino Libraries folder. See [Installing Additional Arduino Libraries](https://www.arduino.cc/en/Guide/Libraries).
+Download this file as a zip, and extract the resulting folder into your Arduino Libraries folder. See [Installing Additional Arduino Libraries](https://www.arduino.cc/en/Guide/Libraries). Alternatively, use the Arduino IDE and library manager to find and install ESPFlash.
 
 ## Examples
 The blog post [ESPFlash: An Arduino Library for Storing Data in the ESP Filesystem](https://dalegi.com/2020/04/22/espflash-an-arduino-library-for-storing-data-in-the-esp-filesystem/) contains some useful comparisons between ESPFlash usage and SPIFFS usage. In addition, here are some basic ESPFlash example:
