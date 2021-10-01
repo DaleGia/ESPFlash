@@ -24,6 +24,10 @@
 
 #include <FS.h>
 
+#if defined(ARDUINO_ARCH_ESP32)
+#include <SPIFFS.h>
+#endif
+
 template<class T>
 class ESPFlash
 {  
