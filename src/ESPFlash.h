@@ -42,9 +42,6 @@ class ESPFlash
     /* Truncates the associated ESPFlash SPIFFS file and creates the first element containing type T. */
     /* Returns true if successful */
     bool set(const T data);
-    /* Sets the element specified by the index parameter if it exists. */
-    /* Returns true if successful */
-    bool setElementAt(const T data, uint32_t index);
     /* Truncates the associated ESPFlash SPIFFS file and creates elements specified by Type T. */
     /* Returns true if successful */
     bool setElements(const T* data, uint32_t size);
