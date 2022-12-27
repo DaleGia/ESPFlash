@@ -27,6 +27,9 @@ void setup()
 {
   Serial.begin(115200);
   Serial.println("Starting");
+  /* Have to initialise before performing any SPIFFS operations*/
+  SPIFFS.begin();      
+
   ESPFlashCounter flashCounter("/counter");
   flashCounter.increment();
   Serial.print("Power Cycle ESPFlashCounter: ");

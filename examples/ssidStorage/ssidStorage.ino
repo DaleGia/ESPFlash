@@ -36,6 +36,9 @@ AsyncWebServer server(80);
 
 void setup() 
 {  
+  /* Have to initialise before performing any SPIFFS operations*/
+  SPIFFS.begin();      
+
   ESPFlashString ssid(SSID_FILEPATH, DEFAULT_SSID);
   Serial.begin(115200);
   /* Configure access point with static IP address */

@@ -22,8 +22,6 @@
 #ifndef ESPFLASH_H_
 #define ESPFLASH_H_
 
-#include <FS.h>
-
 #if defined(ARDUINO_ARCH_ESP32)
 #include <SPIFFS.h>
 #endif
@@ -99,14 +97,12 @@ class ESPFlash
 
 template<class T> ESPFlash<T>::ESPFlash()
 {
-  SPIFFS.begin();      
   return;
 };
 
 template<class T> ESPFlash<T>::ESPFlash(const char* fileName)
 {
   setFileName(fileName);
-  SPIFFS.begin();      
   return;
 };
 

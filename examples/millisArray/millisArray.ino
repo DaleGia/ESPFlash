@@ -31,6 +31,9 @@ void setup()
   Serial.begin(115200);
   Serial.println("Begining millisArray example...");
 
+  /* Have to initialise before performing any SPIFFS operations*/
+  SPIFFS.begin();      
+
   for(int ii = 0; ii < 10; ii++)
   {
     millisArray.append(millis());
